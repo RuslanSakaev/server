@@ -19,10 +19,9 @@ def handle_client(client_socket, client_id):
                 break
             data = data.strip()
             
-            with message_lock:
-                message_queue.append(f"{client_name}: {data}")
-                with open("chat_history.txt", "a") as history_file:
-                    history_file.write(f"{client_name}: {data}\n")
+            # Запись в историю
+            with open("chat_history.txt", "a") as history_file:
+                history_file.write(f"{client_name}: {data}\n")
             
             response = f"{client_name}, you sent: {data}"
             client_socket.send(response.encode('utf-8'))
@@ -55,4 +54,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

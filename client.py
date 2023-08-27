@@ -1,24 +1,24 @@
 import socket
 import threading
 import time
-import fcntl
-import os
 
-def receive_messages():
+def receive_messages(client_socket):
+    last_message_count = 0
+
     while True:
         try:
             with open("chat_history.txt", "r") as history_file:
-                # Получаем файловую блокировку
-                fcntl.flock(history_file, fcntl.LOCK_SH)
                 lines = history_file.readlines()
-                fcntl.flock(history_file, fcntl.LOCK_UN)  # Освобождаем блокировку
-                for line in lines:
+                new_messages = lines[last_message_count:]
+
+                for line in new_messages:
                     print(line.strip())
+                    last_message_count += 1
         except FileNotFoundError:
             pass
         except Exception as e:
             print("Error while reading chat history:", e)
-        time.sleep(2)  # Ожидаем некоторое время перед следующим чтением
+        time.sleep(2)   # Ожидаем некоторое время перед следующим чтением
 
 def main():
     server_ip = '127.0.0.1'
@@ -33,7 +33,7 @@ def main():
     response = client_socket.recv(1024).decode('utf-8')
     print(response)
 
-    message_receiver = threading.Thread(target=receive_messages)
+    message_receiver = threading.Thread(target=receive_messages, args=(client_socket,))
     message_receiver.start()
 
     try:
@@ -47,4 +47,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
