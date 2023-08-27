@@ -5,13 +5,29 @@ from collections import deque
 
 message_queue = deque(maxlen=10)
 message_lock = threading.Lock()
+connected_clients = []
+
 
 def handle_client(client_socket, client_id):
     try:
         client_socket.send("Enter your name: ".encode('utf-8'))
         client_name = client_socket.recv(1024).decode('utf-8')
+        
+        # Добавляем клиента в список
+        connected_clients.append(client_socket)
+
         welcome_message = f"Welcome, {client_name}! You are connected.\n"
         client_socket.send(welcome_message.encode('utf-8'))
+
+
+        # Отправка сообщения о входе нового пользователя всем клиентам, кроме текущего
+        welcome_message = f"User {client_name} has joined the chat!"
+        for client in connected_clients:
+            if client != client_socket:
+                try:
+                    client.send(welcome_message.encode('utf-8'))
+                except:
+                    pass
 
         while True:
             data = client_socket.recv(1024).decode('utf-8')
