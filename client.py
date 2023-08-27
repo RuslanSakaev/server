@@ -39,9 +39,13 @@ def main():
     try:
         while True:
             message = input()
+            if message.lower() == 'exit':
+                break
             client_socket.send(message.encode('utf-8'))
     except KeyboardInterrupt:
         pass
+    except ConnectionResetError:
+        print("Connection to the server was lost.")
     finally:
         client_socket.close()
 

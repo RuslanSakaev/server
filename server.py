@@ -1,3 +1,4 @@
+import html
 import socket
 import threading
 from collections import deque
@@ -18,6 +19,8 @@ def handle_client(client_socket, client_id):
                 print(f"Client {client_id} disconnected")
                 break
             data = data.strip()
+            if data:
+                data = html.escape(data)
             
             # Запись в историю
             with open("chat_history.txt", "a") as history_file:
